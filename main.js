@@ -26,7 +26,7 @@ function handleSubmit() {
     // Get the values from your form
     const isActive = document.getElementById('active').checked;
     const hiveAccount = document.getElementById('hiveAccount').value;
-    const apiUrl = document.getElementById('apiUrl').checked;
+    const apiUrl = document.getElementById('apiUrl').value;
     const postUrl = document.getElementById('postUrl').value;
     const rewardAccount = document.getElementById('rewardAccount').value;
 
