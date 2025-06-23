@@ -28,11 +28,8 @@ function handleSubmit() {
     const hiveAccount = document.getElementById('hiveAccount').value;
     const apiUrl = document.getElementById('apiUrl').checked;
     const postUrl = document.getElementById('postUrl').value;
-    const rewardAccount = document.getElementById('rewardAccount').checked;
+    const rewardAccount = document.getElementById('rewardAccount').value;
 
-    console.log("Form submitted!");
-    console.log("Is Active:", isActive);
-    console.log("Hive Account:", hiveAccount);
     window.hive_keychain.requestCustomJson(hiveAccount, 'sm_update_validator', 'Active', JSON.stringify({
         "is_active": isActive,
         "post_url": postUrl,
