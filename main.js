@@ -1,9 +1,9 @@
-
-// https://hivehub.dev/tx/372b4103ef62c9c28c687a3dbaf4db6251fa2026
 var hiveAccount = ""
 var hiveForm
 var logInForm
 var voteForm
+
+// Code that runs on load of page
 
 window.onload = () => {
 
@@ -28,7 +28,7 @@ window.onload = () => {
     addEventListenerToElement(voteForm, handleVote);
 }
 
-
+// Code for log in and out
 
 function handleLogIn() {
     hiveAccount = logInForm.querySelector('#hiveAccount').value;
@@ -41,6 +41,14 @@ function handleLogIn() {
         };
     });
 }
+
+function handleLogOut() {
+    logInForm.style.display = "block";
+    document.getElementById("validatorForm").style.display = "none";
+    hiveAccount = ""
+}
+
+// Code about voting
 
 function handleVote() {
     validatorName = voteForm.querySelector('#validatorName').value;
@@ -89,11 +97,7 @@ function removeVote(validatorName) {
     });
 }
 
-function handleLogOut() {
-    logInForm.style.display = "block";
-    document.getElementById("validatorForm").style.display = "none";
-    hiveAccount = ""
-}
+// Code to update validator
 
 function handleUpdateValidator() {
     const isActive = hiveForm.querySelector('#active').checked;
