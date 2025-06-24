@@ -81,7 +81,7 @@ function createVotersList(data){
     return `
         <li style="display:flex;justify-content: space-between;">
             <p>${data.validator}</p>
-            <button onclick=removeVote('${data.validator}')>Remove Vote</button>
+            <button onclick=removeVote('${data.validator}') style="margin-block:10px;margin-left: 10px;">Remove Vote</button>
         </li>
     `
 }
