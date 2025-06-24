@@ -6,20 +6,38 @@
     <title>Document</title>
 </head>
 <body>
-    <form  id="hiveForm">
-        <input type="checkbox" id="active" name="active">
-        <label for="active"> Active</label><br>
-        <label for="hiveAccount">Hive Account to sign with:</label><br>
-        <input type="text" id="hiveAccount" name="hiveAccount" required><br>
-        <label for="hiveAccount">Api url:</label><br>
-        <input type="text" id="apiUrl" name="apiUrl" ><br>
-        <label for="hiveAccount">Post url:</label><br>
-        <input type="text" id="postUrl" name="postUrl"><br>
-        <label for="hiveAccount">Reward Account:</label><br>
-        <input type="text" id="rewardAccount" name="rewardAccount"><br>
+    <form id="logIn">
+        <label for="hiveAccount">Hive Account:</label><br>
+        <input type="text" id="hiveAccount" name="rewardAccount"><br>
         <input type="submit" value="Submit">
-    </form> 
-    
+    </form>
+    <div style="display:none" id="validatorForm">
+        <form id="hiveForm">
+            <input type="button" id="logOutButton" onclick=handleLogOut()><br>
+            <input type="checkbox" id="active" name="active">
+            <label for="active"> Active</label><br>
+            <label for="apiUrl">Api url:</label><br>
+            <input type="text" id="apiUrl" name="apiUrl" ><br>
+            <label for="postUrl">Post url:</label><br>
+            <input type="text" id="postUrl" name="postUrl"><br>
+            <label for="rewardAccount">Reward Account:</label><br>
+            <input type="text" id="rewardAccount" name="rewardAccount"><br>
+            <input type="submit" value="Submit">
+        </form> 
+        <hr>
+        <h3>Vote for validator</h3>
+        <form id="voteFor">
+            <label for="validatorName">Validator Name:</label>
+            <input type="text" id="validatorName" name="validatorName">
+            <input type="submit" value="Vote">
+        </form>
+        <hr>
+        <div>
+            <h3>Votes</h3>
+            <ul id="votedValidators" style="width: fit-content">
+            </ul>
+        </div>
+    </div>
     <script src="main.js"></script>
     
 </body>
