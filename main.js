@@ -38,6 +38,7 @@ function handleLogIn() {
             document.getElementById("validatorForm").style.display = "block";
             document.getElementById("logOutButton").value = `Log out (${hiveAccount})`;
             getVotes();
+            getValidatorData();
         };
     });
 }
@@ -61,6 +62,26 @@ function handleVote() {
             voteForm.querySelector('#validatorName').value = "";
         };
     });
+}
+
+// Code to get current validator data
+
+async function getValidatorData() {
+    try {
+        const response = await fetch(`https://splinterlands-validator-api.splinterlands.com/validator?account=${hiveAccount}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const apiResponse = await response.json();
+        if (apiResponse != null) {
+            document.getElementById("active").checked = apiResponse["is_active"]
+            document.getElementById("apiUrl").value = apiResponse["api_url"]
+            document.getElementById("postUrl").value = apiResponse["post_url"]
+            document.getElementById("rewardAccount").value = apiResponse["reward_account"]
+        }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
 }
 
 async function getVotes() {
