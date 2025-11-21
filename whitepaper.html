@@ -1,11 +1,12 @@
 <!-- Chosen Palette: Warm Neutrals (Slate/Stone) with a professional Blue accent and Amber/Gold for value. -->
-<!-- Application Structure Plan: I've designed a thematic, tab-based Single Page Application (SPA) structure. Instead of a linear document, users navigate between distinct sections (Dashboard, Core Loops, Simulator, Guilds, Tokenomics) using JavaScript-driven navigation. This is superior for usability as users can explore systems non-linearly. The key interaction is the "Miner Simulator," which uses JS to dynamically calculate the "Difficulty-Driven Obsolescence" (Sec 6) based on user-selected Generation and Difficulty, making the report's most complex concept tangible and easy to grasp. -->
+<!-- Application Structure Plan: I've designed a thematic, tab-based Single Page Application (SPA) structure. Instead of a linear document, users navigate between distinct sections (Dashboard, Core Loops, Simulator, Guilds, Tokenomics) using JavaScript-driven navigation. This is superior for usability as users can explore systems non-linearly. The key interactions are the "Miner Simulator" and "Facility Simulator," which use JS to dynamically calculate the "Difficulty-Driven Obsolescence" (Sec 6/Appendix) and "Facility Cost Scaling" (Sec 8) based on user-selected inputs, making the report's most complex concepts tangible and easy to grasp. -->
 <!-- Visualization & Content Choices: 
-- Dashboard ($MINE$ vs $CREDIT$): Goal: Compare. Viz: Two-column HTML/Tailwind card layout for quick comparison of token properties (Sec 2).
-- Miner Progression: Goal: Show Change. Viz: Chart.js Logarithmic Line Chart to visualize the 20-generation scaling of Price vs. Efficiency (Sec 9). Interaction: None (static chart).
-- Miner Simulator: Goal: Interact/Simulate. Viz: HTML Dropdown (Gen 1-20) and Slider (Difficulty 1-100). Interaction: JS 'onchange' event recalculates all energy formulas from Sec 6 and updates text outputs, demonstrating the "reinvestment pressure" loop.
-- Tokenomics Flow: Goal: Organize. Viz: HTML/Tailwind flow diagrams (using flexbox and borders) to visualize the MINE->CREDIT arbitrage and CREDIT sinks (Sec 2, 11).
-- Guild Rules: Goal: Inform. Viz: HTML/Tailwind icon-based "rule cards" to highlight the 5% cap, 3% tax, and cooldowns (Sec 8).
+- Dashboard ($MINE$ vs $CREDIT$): Goal: Compare. Viz: Two-column HTML/Tailwind card layout for quick comparison of token properties (Sec 1).
+- Miner Progression: Goal: Show Change. Viz: Chart.js Logarithmic Line Chart to visualize the 20-generation scaling of Price vs. Efficiency (Sec 4). Interaction: None (static chart).
+- Miner Simulator: Goal: Interact/Simulate. Viz: HTML Dropdown (Gen 1-20) and Slider (Difficulty 1-100). Interaction: JS 'onchange' event recalculates all energy formulas from the Technical Appendix (Sec 14.2) and updates text outputs.
+- Facility Simulator: Goal: Interact/Simulate. Viz: HTML Dropdown (5 Facilities) and Slider (Difficulty 1-30). Interaction: JS 'onchange' event recalculates Facility Cost using the formula from Sec 8: Cost = Base * (0.6 + 0.08D).
+- Tokenomics Flow: Goal: Organize. Viz: HTML/Tailwind flow diagrams (using flexbox and borders) to visualize the MINE->CREDIT arbitrage and CREDIT sinks (Sec 9, 17, 18, 19).
+- Guild Rules: Goal: Inform. Viz: HTML/Tailwind icon-based "rule cards" to highlight the 5% cap, 3% tax, and cooldowns (Sec 2, 13).
 -->
 <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
 <!DOCTYPE html>
@@ -73,7 +74,7 @@
             <button class="nav-btn active" data-pane="dashboard">📊 Dashboard</button>
             <button class="nav-btn" data-pane="loops">🔄 Core Loops</button>
             <button class="nav-btn" data-pane="simulator">⚙️ Miner Simulator</button>
-            <button class="nav-btn" data-pane="guilds">🛡️ Guilds & Rules</button>
+            <button class="nav-btn" data-pane="guilds">🛡️ Guilds & Facilities</button>
             <button class="nav-btn" data-pane="tokenomics">💰 Tokenomics</button>
         </nav>
 
@@ -116,6 +117,7 @@
                                         <li>Daily Energy Costs</li>
                                         <li>Research Funding</li>
                                         <li>Guild & Market Fees</li>
+                                        <li>Miner Scrapping Reward</li>
                                     </ul>
                                 </li>
                                 <li class="flex items-start"><span class="mr-3 mt-1">📈</span><strong>Peg Mechanic:</strong> Arbitrage ceiling at $1.05 (burn $MINE$ to mint).</li>
@@ -141,17 +143,19 @@
                             <p class="text-slate-600">Miners compete for block rewards in a winner-takes-all system. This creates a high-variance, high-reward environment for solo players and encourages pooling in guilds.</p>
                             <ul class="mt-4 space-y-2 text-sm">
                                 <li><strong>Block Time:</strong> 1 minute</li>
-                                <li><strong>Initial Reward:</strong> 400 $MINE$</li>
-                                <li><strong>Halving:</strong> Based on cumulative supply milestones.</li>
+                                <li><strong>Initial Reward:</strong> Calculated at launch.</li>
+                                <li><strong>Halving:</strong> Occurs every 10,512,000 blocks (~6 mo).</li>
                             </ul>
                         </div>
-                        <div class="stat-card">
-                            <h3 class="text-2xl font-semibold mb-3">Difficulty & Energy</h3>
-                            <p class="text-slate-600">This is the **mandatory reinvestment** loop. As network hashpower ($D$) rises, daily energy costs ($E$) increase, hitting older generations the hardest. This forces players to upgrade.</p>
+                        <div class="stat-card md:col-span-2">
+                            <h3 class="text-2xl font-semibold mb-3">Energy System v2: Dynamic Consumption</h3>
+                            <p class="text-slate-600">The energy system ensures active participation by tying the energy burn rate directly to network Difficulty ($D$). This forces players to monitor their farm like a real PoW operation.</p>
                             <ul class="mt-4 space-y-2 text-sm">
-                                <li><strong>Costs:</strong> Paid daily in $CREDIT$.</li>
-                                <li><strong>Scaling:</strong> Energy cost scales with Difficulty.</li>
-                                <li><strong>Obsolescence:</strong> Older gens become unprofitable over time.</li>
+                                <li class="flex items-center"><span class="text-blue-500 font-bold mr-2 text-lg">1.</span> <strong>Centralized Account Buffer:</strong> All miners in a farm draw energy from a single, unified account supply.</li>
+                                <li class="flex items-center"><span class="text-blue-500 font-bold mr-2 text-lg">2.</span> <strong>Purchase Limit:</strong> You can only buy enough energy for the next **24 hours** of runtime at the current $D$.</li>
+                                <li class="flex items-center"><span class="text-blue-500 font-bold mr-2 text-lg">3.</span> <strong>Max Buffer:</strong> The system enforces a maximum stockpile of **48 hours** of runtime.</li>
+                                <li class="flex items-center"><span class="text-blue-500 font-bold mr-2 text-lg">4.</span> <strong>Hourly Check-In:</strong> Energy is consumed (deducted) during a mandatory **hourly check-in** on the account.</li>
+                                <li class="flex items-center"><span class="text-blue-500 font-bold mr-2 text-lg">5.</span> <strong>Dynamic Burn:</strong> If $D$ rises between check-ins, your remaining energy is consumed faster to pay the higher operational cost, shortening your runtime.</li>
                             </ul>
                         </div>
                         <div class="stat-card">
@@ -170,9 +174,9 @@
             <!-- Simulator Pane -->
             <div id="simulator" class="pane space-y-8">
                 <section>
-                    <h2 class="text-3xl font-semibold mb-4 text-slate-900">Miner Simulator</h2>
+                    <h2 class="text-3xl font-semibold mb-4 text-slate-900">Miner Simulator (Energy)</h2>
                     <p class="text-lg text-slate-600 mb-6 max-w-3xl">
-                        See the "Difficulty-Driven Obsolescence" in action. Select a miner generation and a network Difficulty ($D$) to see the exact daily energy cost, calculated using the formulas from Section 6.
+                        See the "Difficulty-Driven Obsolescence" in action. Select a miner generation and a network Difficulty ($D$) to see the exact daily energy cost. This simulation uses the detailed formulas from the Technical Appendix (Sec 14.2) to show how older miners are penalized more heavily by rising Difficulty.
                     </p>
                     
                     <div class="stat-card mb-8">
@@ -185,7 +189,7 @@
                             </div>
                             <div>
                                 <label for="diff-slider" class="block text-sm font-medium text-slate-700">2. Set Network Difficulty (D): <span id="sim-diff-value" class="font-bold">1</span></label>
-                                <input id="diff-slider" type="range" min="1" max="100" value="1" class="mt-2 block w-full">
+                                <input id="diff-slider" type="range" min="1" max="10" value="1" class="mt-2 block w-full">
                             </div>
                         </div>
 
@@ -205,7 +209,7 @@
                                     <div id="sim-ebase" class="text-2xl font-bold text-slate-800"></div>
                                 </div>
                                 <div class="bg-amber-100 p-4 rounded-lg border border-amber-300">
-                                    <div class="text-sm text-amber-900">Final Energy / Day</div>
+                                    <div class="text-sm text-amber-900">Final Energy / Day ($CREDIT$)</div>
                                     <div id="sim-energy-final" class="text-2xl font-bold text-amber-700"></div>
                                 </div>
                             </div>
@@ -217,7 +221,7 @@
                 <section>
                     <h2 class="text-3xl font-semibold mb-4 text-slate-900">Generational Scaling (Logarithmic)</h2>
                     <p class="text-lg text-slate-600 mb-6 max-w-3xl">
-                        This chart visualizes the exponential scaling of $NFT$ Miner Price vs. Efficiency across all 20 generations. Note the "diminishing returns" where efficiency (1.67x) outpaces price (1.5x) over time.
+                        This chart visualizes the exponential scaling of $NFT$ Miner Price (1.5x) vs. Efficiency (1.67x) across all 20 generations, as detailed in Section 4.
                     </p>
                     <div class="stat-card">
                         <div class="chart-container">
@@ -232,9 +236,9 @@
                 <section>
                     <h2 class="text-3xl font-semibold mb-4 text-slate-900">Guilds & Anti-Whale Rules</h2>
                     <p class="text-lg text-slate-600 mb-6 max-w-3xl">
-                        Guilds (mining pools) are crucial for stability, but are balanced by strict rules to prevent centralization and protect the economy.
+                        Guilds (mining pools) are crucial for stability, and these strict rules prevent centralization while allowing flexible team formation and rewarding solo play.
                     </p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div class="rule-card">
                             <span class="text-4xl">🛡️</span>
                             <div>
@@ -246,7 +250,7 @@
                             <span class="text-4xl">🔥</span>
                             <div>
                                 <h3 class="text-xl font-semibold">3% Guild Tax</h3>
-                                <p class="text-slate-600">Guild wins are taxed 3%: 1% of $MINE$ is burned (deflation) and 2% goes to the Treasury. Solo miners pay 0% tax.</p>
+                                <p class="text-slate-600">Guild wins are taxed 3%: 1% of $MINE$ is burned (deflation) and 2% goes to the Guild Treasury. Solo miners pay 0% tax.</p>
                             </div>
                         </div>
                         <div class="rule-card">
@@ -256,12 +260,46 @@
                                 <p class="text-slate-600">A 24hr "Join Cooldown" (no rewards) and "Leave Cooldown" (no re-joining) prevents all pool-hopping exploits.</p>
                             </div>
                         </div>
-                        <div class="rule-card">
-                            <span class="text-4xl">👥</span>
+                    </div>
+                </section>
+
+                <section>
+                    <h2 class="text-3xl font-semibold mb-4 text-slate-900">Facility Simulator (Cost)</h2>
+                    <p class="text-lg text-slate-600 mb-6 max-w-3xl">
+                        Guilds can purchase temporary facilities using $CREDIT$. The cost scales with network Difficulty ($D$) to ensure they are accessible in the early-game and prestigious in the late-game.
+                    </p>
+                    
+                    <div class="stat-card mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <h3 class="text-xl font-semibold">3 Member Minimum</h3>
-                                <p class="text-slate-600">Guilds must have at least 3 active members to be eligible for rewards, preventing micro-guild spam.</p>
+                                <label for="facility-select" class="block text-sm font-medium text-slate-700">1. Select Facility</label>
+                                <select id="facility-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md shadow-sm">
+                                    <!-- Options populated by JS -->
+                                </select>
                             </div>
+                            <div>
+                                <label for="facility-diff-slider" class="block text-sm font-medium text-slate-700">2. Set Network Difficulty (D): <span id="facility-diff-value" class="font-bold">1</span></label>
+                                <input id="facility-diff-slider" type="range" min="1" max="10" value="1" class="mt-2 block w-full">
+                            </div>
+                        </div>
+
+                        <div class="mt-8 border-t border-slate-200 pt-6">
+                            <h4 class="text-xl font-semibold mb-4 text-center">Simulation Results</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                <div class="bg-slate-100 p-4 rounded-lg">
+                                    <div class="text-sm text-slate-500">Base Cost (at D=5)</div>
+                                    <div id="sim-facility-base" class="text-2xl font-bold text-slate-800"></div>
+                                </div>
+                                <div class="bg-slate-100 p-4 rounded-lg">
+                                    <div class="text-sm text-slate-500">Cost Multiplier</div>
+                                    <div id="sim-facility-multi" class="text-2xl font-bold text-slate-800"></div>
+                                </div>
+                                <div class="bg-blue-100 p-4 rounded-lg border border-blue-300">
+                                    <div class="text-sm text-blue-900">Final Cost ($CREDIT$)</div>
+                                    <div id="sim-facility-final" class="text-2xl font-bold text-blue-700"></div>
+                                </div>
+                            </div>
+                            <p id="sim-facility-conclusion" class="mt-4 text-center text-slate-600"></p>
                         </div>
                     </div>
                 </section>
@@ -277,7 +315,7 @@
                     
                     <h3 class="text-2xl font-semibold mb-4 text-slate-800">1. The Arbitrage Engine (Peg Stability)</h3>
                     <div class="stat-card mb-8">
-                        <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                        <div class="flex flex-col md:flex-row items-center justify-center gap-4 flex-wrap">
                             <div class="flow-box bg-red-100 text-red-800 border border-red-200">
                                 $CREDIT$ Price > $1.05
                             </div>
@@ -286,7 +324,7 @@
                                 Player burns $MINE$
                             </div>
                             <div class="flow-arrow">→</div>
-                            <div class="flow-box">
+                            <div classs="flow-box">
                                 Mints $CREDIT$ at $1.00
                             </div>
                             <div class="flow-arrow">→</div>
@@ -299,7 +337,7 @@
 
                     <h3 class="text-2xl font-semibold mb-4 text-slate-800">2. The $CREDIT$ Burn Sinks (Utility Demand)</h3>
                     <div class="stat-card">
-                         <div class="flex flex-col md:flex-row items-center justify-center gap-4">
+                         <div class="flex flex-col md:flex-row items-center justify-center gap-4 flex-wrap">
                             <div class="flow-box">
                                 Player (needs to play)
                             </div>
@@ -312,7 +350,8 @@
                                 <div class="flow-box text-sm">NFT Purchases</div>
                                 <div class="flow-box text-sm">Daily Energy</div>
                                 <div class="flow-box text-sm">Research</div>
-                                <div class="flow-box text-sm">Market Fees</div>
+                                <div class="flow-box text-sm">Guild Facilities</div>
+                                <div class="flow-box text-sm">Miner Scrapping</div>
                             </div>
                             <div class="flow-arrow">→</div>
                              <div class="flow-box bg-red-100 text-red-800 border border-red-200">
@@ -353,6 +392,14 @@
                 { gen: 20, price: 55422.30, eff: 17142.25, eBase: 22.451 }
             ];
 
+            const FACILITY_DATA = [
+                { id: 'cooling', name: 'Cooling Station (-3% Energy)', baseCost: 3200 },
+                { id: 'predictive', name: 'Predictive Hub (D-Spike Warning)', baseCost: 2600 },
+                { id: 'buffer', name: 'Buffer Extender (+8-12h)', baseCost: 3600 },
+                { id: 'research', name: 'Research Accelerator (+5-8%)', baseCost: 2800 },
+                { id: 'reserve', name: 'Emergency Reserve (12h Refill)', baseCost: 3000 }
+            ];
+
             const navButtons = document.querySelectorAll('.nav-btn');
             const panes = document.querySelectorAll('.pane');
 
@@ -382,12 +429,31 @@
             const simEnergyFinal = document.getElementById('sim-energy-final');
             const simConclusion = document.getElementById('sim-conclusion');
 
-            GENERATION_DATA.forEach(gen => {
-                const option = document.createElement('option');
-                option.value = gen.gen;
-                option.textContent = `Generation ${gen.gen}`;
-                genSelect.appendChild(option);
-            });
+            const facilitySelect = document.getElementById('facility-select');
+            const facilityDiffSlider = document.getElementById('facility-diff-slider');
+            const facilityDiffValue = document.getElementById('facility-diff-value');
+            
+            const simFacilityBase = document.getElementById('sim-facility-base');
+            const simFacilityMulti = document.getElementById('sim-facility-multi');
+            const simFacilityFinal = document.getElementById('sim-facility-final');
+            const simFacilityConclusion = document.getElementById('sim-facility-conclusion');
+
+
+            function populateDropdowns() {
+                GENERATION_DATA.forEach(gen => {
+                    const option = document.createElement('option');
+                    option.value = gen.gen;
+                    option.textContent = `Generation ${gen.gen}`;
+                    genSelect.appendChild(option);
+                });
+
+                FACILITY_DATA.forEach(facility => {
+                    const option = document.createElement('option');
+                    option.value = facility.id;
+                    option.textContent = facility.name;
+                    facilitySelect.appendChild(option);
+                });
+            }
 
             function updateSimulator() {
                 const g = parseInt(genSelect.value);
@@ -410,7 +476,29 @@
                 } else if (g > 18) {
                     simConclusion.textContent = "Notice: This high-gen miner is very resistant to difficulty, keeping energy costs low.";
                 } else {
-                    simConclusion.textContent = "";
+                    simConclusion.textContent = "This cost is moderate, but will increase as Difficulty rises.";
+                }
+            }
+
+            function updateFacilitySimulator() {
+                const facilityId = facilitySelect.value;
+                const D = parseInt(facilityDiffSlider.value);
+                facilityDiffValue.textContent = D;
+
+                const facility = FACILITY_DATA.find(f => f.id === facilityId);
+                const multiplier = 0.6 + 0.08 * D;
+                const finalCost = facility.baseCost * multiplier;
+
+                simFacilityBase.textContent = facility.baseCost.toLocaleString();
+                simFacilityMulti.textContent = multiplier.toFixed(2) + 'x';
+                simFacilityFinal.textContent = finalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                if (D <= 3) {
+                    simFacilityConclusion.textContent = "At this low Difficulty, the facility is discounted to encourage early guild formation.";
+                } else if (D > 15) {
+                    simFacilityConclusion.textContent = "At high Difficulty, the facility is a prestigious and expensive strategic asset.";
+                } else {
+                    simFacilityConclusion.textContent = "This is a standard mid-game cost.";
                 }
             }
 
@@ -487,10 +575,17 @@
             if (document.getElementById('miner-progression-chart')) {
                 initMinerChart();
             }
+
             if(genSelect) {
+                populateDropdowns();
                 updateSimulator();
+                updateFacilitySimulator();
+
                 genSelect.addEventListener('change', updateSimulator);
                 diffSlider.addEventListener('input', updateSimulator);
+                
+                facilitySelect.addEventListener('change', updateFacilitySimulator);
+                facilityDiffSlider.addEventListener('input', updateFacilitySimulator);
             }
         });
     </script>
