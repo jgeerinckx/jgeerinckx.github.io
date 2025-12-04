@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE MINING INITIATIVE - Proof-of-Game Mining</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom scrollbar for aesthetic */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #34d399; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+
+        /* Custom background pattern for a tech feel */
+        .tech-grid-bg {
+            background-color: #0c0a09;
+            background-image:
+                linear-gradient(to right, #1f2937 1px, transparent 1px),
+                linear-gradient(to bottom, #1f2937 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* Neon green accent for key text/borders */
+        .neon-glow {
+            box-shadow: 0 0 5px rgba(52, 211, 153, 0.5), 0 0 10px rgba(16, 185, 129, 0.3);
+            border-color: #34d399;
+        }
+
+        /* Custom animation for token rotation */
+        @keyframes rotateY {
+            from { transform: rotateY(0deg); }
+            to { transform: rotateY(360deg); }
+        }
+
+        .token-spin {
+            animation: rotateY 15s linear infinite;
+            transform-style: preserve-3d;
+        }
+    </style>
+</head>
+<body class="tech-grid-bg text-gray-100 font-['Inter'] antialiased">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-50 bg-stone-900/90 backdrop-blur-sm shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-green-400">TMI</h1>
+            <nav class="hidden md:flex space-x-8 text-sm font-medium">
+                <a href="#economy" class="hover:text-green-400 transition">Economy</a>
+                <a href="#gameplay" class="hover:text-green-400 transition">Gameplay</a>
+                <a href="#difficulty" class="hover:text-green-400 transition">Difficulty</a>
+                <a href="#miners" class="hover:text-green-400 transition">Miners & Tech</a>
+                <a href="#guilds" class="hover:text-green-400 transition">Guilds</a>
+                <a href="#sustainability" class="hover:text-green-400 transition">Sustainability</a>
+            </nav>
+            <a href="#" class="px-4 py-2 bg-green-500 text-stone-900 font-semibold rounded-lg shadow-md hover:bg-green-400 transition-colors">Start Mining</a>
+        </div>
+    </header>
+
+    <!-- 1. Hero Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+        <h2 class="text-7xl md:text-8xl font-extrabold tracking-tight text-white leading-tight mb-4">
+            THE <span class="text-green-400">MINING</span> INITIATIVE
+        </h2>
+        <p class="text-3xl font-light text-gray-300 mb-8 max-w-4xl mx-auto">
+            A Proof-of-Game Mining Economy with <span class="font-bold">Real Difficulty</span>, Finite Supply & <span class="font-bold">Multi-Decade Survival.</span>
+        </p>
+        <p class="text-lg text-gray-400 mb-12 max-w-3xl mx-auto">
+            This is a true economic simulation inspired by Proof-of-Work. Every reward is earned through reinvestment, active cost management, and long-term planning.
+        </p>
+        <a href="#economy" class="px-10 py-4 text-lg bg-green-500 text-stone-900 font-bold rounded-xl shadow-2xl hover:bg-green-400 transition-all transform hover:scale-105 neon-glow">
+            EXPLORE THE ECOSYSTEM
+        </a>
+        <div class="mt-16 border-t border-gray-700/50 pt-8 text-gray-500 text-sm">
+            <p>No developer mint privileges. No hidden taxes. No emergency rule changes.</p>
+        </div>
+    </section>
+
+    <!-- 2. The Two-Token Economy -->
+    <section id="economy" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h3 class="text-5xl font-bold text-center text-white mb-16">
+            The <span class="text-green-400">Two-Token</span> Economy
+        </h3>
+        <div class="grid md:grid-cols-2 gap-12">
+            <!-- MINE Token Card -->
+            <div class="bg-stone-800/50 p-8 rounded-2xl border-2 border-green-500/30 shadow-xl neon-glow">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-3xl font-black text-stone-900 token-spin">M</div>
+                    <h4 class="text-3xl font-extrabold text-green-400">MINE Token</h4>
+                </div>
+                <p class="text-xl font-semibold text-white mb-4">The Reward & Scarcity Token</p>
+                <ul class="space-y-3 text-gray-300 text-lg">
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 mt-1 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2m0 0l-2.001 2m2.001-2a2.002 2.002 0 01-4 0c0-1.105 1.343-2 3-2zM19 12a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <span class="font-bold">Earned:</span> By mining blocks. Halves every 180 days.
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 mt-1 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-7.618 3.04A12.002 12.002 0 0012 20.056a12.002 12.002 0 007.618-13.016z"></path></svg>
+                        <span class="font-bold">Supply:</span> Hard cap at <span class="font-bold">210,000,000</span>. Followed by a permanent Tail Emission.
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 mt-1 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span class="font-bold">Sinks:</span> Burned when converting to CREDIT or destroying old miners.
+                    </li>
+                </ul>
+            </div>
+
+            <!-- CREDIT Token Card -->
+            <div class="bg-stone-800/50 p-8 rounded-2xl border-2 border-gray-400/30 shadow-xl">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center text-3xl font-black text-stone-900 token-spin" style="animation-direction: reverse;">C</div>
+                    <h4 class="text-3xl font-extrabold text-gray-300">CREDIT Token</h4>
+                </div>
+                <p class="text-xl font-semibold text-white mb-4">The Utility & Energy Token (Near $1 Peg)</p>
+                <ul class="space-y-3 text-gray-300 text-lg">
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 mt-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2v5m0 0l-1.5-1.5M12 11l1.5-1.5M12 11v5m0 0l-1.5 1.5M12 16l1.5 1.5M12 16h-4a2 2 0 00-2 2v3a2 2 0 002 2h8a2 2 0 002-2v-3a2 2 0 00-2-2h-4z"></path></svg>
+                        <span class="font-bold">Core Use:</span> Energy, New Miners, Research, Guild Facilities, Staking.
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 mt-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 3m0 0l-3 3m3-3h16a2 2 0 002-2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1"></path></svg>
+                        <span class="font-bold">Peg Mechanism:</span> If CREDIT > $1.05, players can arbitrage by <span class="font-bold">burning $1 worth of MINE</span> to <span class="font-bold">mint 1 CREDIT</span>, ensuring continuous demand for MINE and price stability for CREDIT.
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="w-6 h-6 mr-3 mt-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5m0 0v5m0-5h5m-5 0h5m5 0h5m0 0v5m0-5v5m0-5H9m5 0h5m0 0v5m0-5h-5m-5 0h-5m0 0v5m0-5v5"></path></svg>
+                        <span class="font-bold">Role:</span> Keeps the game operational. Not intended for speculation.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. The Daily Gameplay Loop -->
+    <section id="gameplay" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h3 class="text-5xl font-bold text-center text-white mb-16">
+            The <span class="text-green-400">Survival</span> Loop
+        </h3>
+        <div class="relative flex flex-col items-center">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-full h-1 bg-gray-700"></div>
+            </div>
+            <div class="grid md:grid-cols-5 gap-8 relative z-10 text-center">
+                
+                <!-- Step 1: Energy Management -->
+                <div class="bg-stone-900 rounded-xl p-6 border border-green-500/50 shadow-lg hover:shadow-green-500/20 transition-shadow">
+                    <p class="text-4xl text-green-400 font-extrabold mb-2">1</p>
+                    <h4 class="text-xl font-semibold mb-2">Energy Check</h4>
+                    <p class="text-gray-400">Purchase <span class="font-bold">Energy</span> (using CREDIT) to keep your miners running. Max buffer of <span class="font-bold">48 hours</span>.</p>
+                </div>
+
+                <!-- Arrow Icon -->
+                <div class="hidden md:flex items-center justify-center text-3xl text-green-400">→</div>
+                
+                <!-- Step 2: Mining & Competing -->
+                <div class="bg-stone-900 rounded-xl p-6 border border-green-500/50 shadow-lg hover:shadow-green-500/20 transition-shadow">
+                    <p class="text-4xl text-green-400 font-extrabold mb-2">2</p>
+                    <h4 class="text-xl font-semibold mb-2">Mining Blocks</h4>
+                    <p class="text-gray-400">Your miners consume energy and compete against the global <span class="font-bold">Network Difficulty</span> for MINE.</p>
+                </div>
+
+                <!-- Arrow Icon -->
+                <div class="hidden md:flex items-center justify-center text-3xl text-green-400">→</div>
+
+                <!-- Step 3: Strategic Reinvestment -->
+                <div class="bg-stone-900 rounded-xl p-6 border border-green-500/50 shadow-lg hover:shadow-green-500/20 transition-shadow">
+                    <p class="text-4xl text-green-400 font-extrabold mb-2">3</p>
+                    <h4 class="text-xl font-semibold mb-2">Decision & Reinvest</h4>
+                    <p class="text-gray-400">Use MINE to: Hold, Trade, <span class="font-bold">Fund Research</span>, or Convert to CREDIT for Upgrades.</p>
+                </div>
+
+            </div>
+            <div class="mt-8 text-gray-500 italic text-sm">
+                ⚠️ <span class="font-bold">Activity Clarification:</span> Players only need to manage energy when the buffer runs low. No hourly logins required.
+            </div>
+        </div>
+    </section>
+    
+    <!-- 4. New Section: Energy, Difficulty & Cost Scaling -->
+    <section id="difficulty" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h3 class="text-5xl font-bold text-center text-white mb-16">
+            The Pressure: <span class="text-red-400">Energy</span>, Difficulty & Cost Scaling
+        </h3>
+        <div class="grid lg:grid-cols-2 gap-8">
+            <!-- Card 1: Network Difficulty -->
+            <div class="bg-stone-900 p-8 rounded-2xl border border-red-500/50 shadow-lg">
+                <h4 class="text-2xl font-bold text-white mb-4 flex items-center"><span class="text-red-500 text-3xl mr-3">⛮</span> Network Difficulty (Global Pressure)</h4>
+                <p class="text-gray-400 mb-4">Difficulty is a single global number that rises with total active hashpower. It is the primary pressure valve that prevents early players from permanent dominance.</p>
+                <ul class="space-y-2 text-gray-300">
+                    <li><span class="text-red-400 font-bold">Purpose:</span> Gradually increases Energy consumption across the system.</li>
+                    <li><span class="text-red-400 font-bold">Effect:</span> Reduces the profitability of older hardware, forcing reinvestment.</li>
+                    <li><span class="text-red-400 font-bold">Safety:</span> The Difficulty is <span class="font-bold">hard-capped at 10</span> forever to prevent runaway costs and crashes.</li>
+                </ul>
+            </div>
+            <!-- Card 2: Cost Scaling & Obsolescence -->
+            <div class="bg-stone-900 p-8 rounded-2xl border border-gray-700/50 shadow-lg">
+                <h4 class="text-2xl font-bold text-white mb-4 flex items-center"><span class="text-green-500 text-3xl mr-3">⚡</span> Dynamic Cost Scaling</h4>
+                <p class="text-gray-400 mb-4">Energy costs scale in three dynamic ways, mirroring real-world hardware depreciation:</p>
+                <ul class="space-y-2 text-green-300">
+                    <li><span class="text-white font-bold">By Miner Generation:</span> Newer miners consume more but are power-efficient.</li>
+                    <li><span class="text-white font-bold">By Network Difficulty:</span> Higher difficulty increases energy costs across the entire system.</li>
+                    <li><span class="text-white font-bold">By Miner Age:</span> Older miners become disproportionately less energy-efficient relative to new tech. This naturally phases out obsolete hardware.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Miners, Obsolescence, & Recycling -->
+    <section id="miners" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h3 class="text-5xl font-bold text-center text-white mb-16">
+            The Hardware: <span class="text-blue-400">Generations</span> & Recycling
+        </h3>
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Card 1: Miners & Generations -->
+            <div class="bg-stone-900 p-8 rounded-2xl border border-gray-700/50 shadow-lg">
+                <h4 class="text-2xl font-bold text-white mb-4">Generational Tech (NFTs)</h4>
+                <p class="text-gray-400 mb-4">Miners are NFTs progressing through <span class="font-bold">20 generations</span>. Each new generation represents a major leap:</p>
+                <ul class="space-y-2 text-green-300">
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-green-500 font-bold">»</span> Significantly More Powerful ($1.67 \times$ Hashpower).</li>
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-green-500 font-bold">»</span> More Resistant to future Difficulty increases.</li>
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-green-500 font-bold">»</span> Forces a permanent reinvestment loop to stay competitive.</li>
+                </ul>
+            </div>
+            <!-- Card 2: Obsolescence Is Intentional -->
+            <div class="bg-stone-900 p-8 rounded-2xl border border-red-500/50 shadow-lg neon-glow">
+                <h4 class="text-2xl font-bold text-red-400 mb-4">The Burn Reward (MBR)</h4>
+                <p class="text-gray-400 mb-4">To prevent inventory clutter, players can permanently destroy (burn) obsolete miners.</p>
+                <ul class="space-y-2 text-red-300">
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-red-500 font-bold">»</span> Returns a fraction of the original mint price in <span class="font-bold">CREDIT</span>.</li>
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-red-500 font-bold">»</span> Return value decays exponentially based on how many newer generations exist.</li>
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-red-500 font-bold">»</span> Acts as a <span class="font-bold">guaranteed exit value</span> and economy cleanup tool.</li>
+                </ul>
+            </div>
+            <!-- Card 3: Player-Funded Research -->
+            <div class="bg-stone-900 p-8 rounded-2xl border border-yellow-400/50 shadow-lg">
+                <h4 class="text-2xl font-bold text-yellow-400 mb-4">Player-Funded Research</h4>
+                <p class="text-gray-400 mb-4">New generations are unlocked entirely by the community's investment in research using CREDIT.</p>
+                <ul class="space-y-2 text-gray-300">
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-yellow-500 font-bold">»</span> <span class="font-bold">Investment ROI:</span> Funders receive <span class="font-bold">25%</span> of all lifetime sales of that new generation, proportionally.</li>
+                    <li class="flex items-start"><span class="text-2xl mr-2 text-yellow-500 font-bold">»</span> Creates <span class="font-bold">speculative incentives</span> for early backers and absorbs CREDIT during growth.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. Solo vs Guild Mining & Facilities -->
+    <section id="guilds" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h3 class="text-5xl font-bold text-center text-white mb-16">
+            Strategic Layer: Solo <span class="text-green-400">vs</span> Guild & Facilities
+        </h3>
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Solo vs Guild Summary -->
+            <div class="bg-stone-800/50 p-8 rounded-2xl border border-green-500/50 shadow-xl">
+                <h4 class="text-3xl font-bold text-white mb-4">The Choice: Risk vs Stability</h4>
+                <p class="text-gray-300 mb-6">Choose between maximum raw profit or strategic cooperation.</p>
+                <div class="space-y-4">
+                    <div class="p-4 bg-stone-900 rounded-lg border border-green-500/20">
+                        <p class="text-xl font-semibold text-green-400">Solo Mining (<span class="font-bold">100% ROI</span>)</p>
+                        <p class="text-sm text-gray-400">Higher volatility, maximum independence, no access to facilities. <span class="font-bold">High Risk, High Raw Reward.</span></p>
+                    </div>
+                    <div class="p-4 bg-stone-900 rounded-lg border border-blue-500/20">
+                        <p class="text-xl font-semibold text-blue-400">Guild Mining (<span class="font-bold">3% Tax</span>)</p>
+                        <p class="text-sm text-gray-400">Lower volatility, pooled hashrate, access to powerful Facilities. <span class="font-bold">Stability, Strategic Advantage.</span></p>
+                        <p class="text-xs text-red-400 mt-2">Anti-Whale Rule: No single Guild can contribute more than 5% of total network hashpower.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Guild Facilities Detail -->
+            <div class="bg-stone-800/50 p-8 rounded-2xl border border-blue-400/50 shadow-xl">
+                <h4 class="text-3xl font-bold text-blue-400 mb-4">Strategic Guild Facilities</h4>
+                <p class="text-gray-300 mb-4">Facilities are temporary, exclusive infrastructure bonuses (10-14 days) built using <span class="font-bold">CREDIT</span>. They reduce risk and improve efficiency, but never grant brute-force profitability.</p>
+                <ul class="space-y-3 text-gray-300">
+                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Cooling Station:</span> Reduces daily energy cost for all members.</li>
+                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Predictive Hub:</span> Provides early warning before major Difficulty updates (risk control).</li>
+                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Buffer Extender:</span> Extends maximum energy hours to prevent downtime during inactivity.</li>
+                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Research Accel.:</span> Increases members' effective research funding impact (sourced from Treasury).</li>
+                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Emergency Reserve:</span> One-time automatic energy refill protection against sudden outages.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- 7. Long-Term Sustainability -->
+    <section id="sustainability" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h3 class="text-5xl font-bold text-center text-white mb-16">
+            <span class="text-green-400">Long-Term</span> Sustainability
+        </h3>
+        <div class="bg-stone-900/50 p-10 rounded-2xl border-2 border-green-500/50 shadow-2xl neon-glow">
+            <div class="grid md:grid-cols-2 gap-10">
+                <div>
+                    <h4 class="text-3xl font-bold text-white mb-4">The Treasury: Decades of Operation</h4>
+                    <p class="text-gray-300 mb-4">The Treasury is the non-profit economic backbone, funded by gameplay (guild tax, miner sales, fees). It ensures the game runs for decades without emergency inflation.</p>
+                    <ul class="space-y-2 text-gray-400">
+                        <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Funds essential infrastructure.</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Maintains long-term economic stability.</li>
+                        <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Funds the permanent Tail Emission.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-3xl font-bold text-white mb-4">The Endgame: Tail Emission & Governance</h4>
+                    <p class="text-gray-300 mb-4">When the <span class="font-bold">210M MINE</span> supply is reached, the game transitions into the permanent Endgame Phase, ensuring mining continues forever.</p>
+                    <div class="p-4 bg-stone-800 rounded-lg">
+                        <p class="text-2xl font-extrabold text-green-400 mb-2">0.2 MINE per Block FOREVER</p>
+                        <p class="text-sm text-gray-400">This small, permanent reward is <span class="font-bold">fully funded by the Treasury</span>, guaranteeing continued competition and NFT relevance. Later-stage <span class="font-bold">DAO Governance</span> can adjust the rate if needed, maintaining multi-decade survival.</p>
+                    </div>
+                    <p class="mt-4 text-sm text-gray-500 italic">The system is built to run as long as people continue to play.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900/90 border-t border-gray-700/50 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="text-center text-gray-500">
+                <p>&copy; 2024 THE MINING INITIATIVE. Proof-of-Game Mining Simulation.</p>
+                <div class="mt-4 space-x-4 text-sm">
+                    <a href="#" class="hover:text-green-400 transition">Whitepaper (Link Placeholder)</a>
+                    <a href="#" class="hover:text-green-400 transition">Contact</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

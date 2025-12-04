@@ -1,326 +1,700 @@
+<!-- Chosen Palette: "Deep Space Industrial" - Slate-900 (Background), Sky-500 (Primary Action), Amber-500 (Value/Warning), Emerald-500 (Success). High contrast for readability. -->
+
+<!-- Application Structure Plan: 
+     The app is a Single Page Application (SPA) managed by a central tab controller.
+     1. DASHBOARD: High-level tokenomics and the Arbitrage Engine visualization (CSS-based).
+     2. MINING OPS: Interactive calculator for Energy/Difficulty equations. Chart.js used to render the "Obsolescence Curve".
+     3. R&D LAB: Investment calculator for the Research Funding pool (25% payout model).
+     4. GUILD COMMAND: Integrated "Blind Hash Race" simulator and Facility glossary.
+     5. SUSTAINABILITY: Visual breakdown of Sinks and Vesting.
+-->
+
+<!-- Visualization & Content Choices:
+     - Mining Ops Chart: Uses Chart.js to plot Energy Cost (Y) over Difficulty (X) for Gen 1, Gen 10, Gen 20. Demonstrates sensitivity.
+     - Race Simulator: Stacked Bar Chart showing Raw TH vs Effective Power (Diminishing Returns + Buffs).
+     - Flow Diagrams: Flexbox/Grid layouts with borders to represent token flow without SVG.
+-->
+
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE MINING INITIATIVE - Proof-of-Game Mining</title>
+    <title>The Mining Initiative | Command Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        /* Custom scrollbar for aesthetic */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
+        }
+        h1, h2, h3, .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pane { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .pane.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Chart Container Sizing */
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            height: 400px; /* Default height */
+            max-height: 500px;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #34d399; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-        /* Custom background pattern for a tech feel */
-        .tech-grid-bg {
-            background-color: #0c0a09;
-            background-image:
-                linear-gradient(to right, #1f2937 1px, transparent 1px),
-                linear-gradient(to bottom, #1f2937 1px, transparent 1px);
-            background-size: 50px 50px;
+        .token-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
         }
-
-        /* Neon green accent for key text/borders */
-        .neon-glow {
-            box-shadow: 0 0 5px rgba(52, 211, 153, 0.5), 0 0 10px rgba(16, 185, 129, 0.3);
-            border-color: #34d399;
-        }
-
-        /* Custom animation for token rotation */
-        @keyframes rotateY {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
-        }
-
-        .token-spin {
-            animation: rotateY 15s linear infinite;
-            transform-style: preserve-3d;
+        .badge-mine { background: #f59e0b; color: #451a03; }
+        .badge-credit { background: #0ea5e9; color: #0c4a6e; }
+        
+        /* Card Styles */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            backdrop-filter: blur(10px);
+            border-radius: 0.75rem;
         }
     </style>
 </head>
-<body class="tech-grid-bg text-gray-100 font-['Inter'] antialiased">
+<body class="min-h-screen flex flex-col">
 
-    <!-- Header / Navbar -->
-    <header class="sticky top-0 z-50 bg-stone-900/90 backdrop-blur-sm shadow-xl">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-green-400">TMI</h1>
-            <nav class="hidden md:flex space-x-8 text-sm font-medium">
-                <a href="#economy" class="hover:text-green-400 transition">Economy</a>
-                <a href="#gameplay" class="hover:text-green-400 transition">Gameplay</a>
-                <a href="#difficulty" class="hover:text-green-400 transition">Difficulty</a>
-                <a href="#miners" class="hover:text-green-400 transition">Miners & Tech</a>
-                <a href="#guilds" class="hover:text-green-400 transition">Guilds</a>
-                <a href="#sustainability" class="hover:text-green-400 transition">Sustainability</a>
-            </nav>
-            <a href="#" class="px-4 py-2 bg-green-500 text-stone-900 font-semibold rounded-lg shadow-md hover:bg-green-400 transition-colors">Start Mining</a>
-        </div>
-    </header>
-
-    <!-- 1. Hero Section -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
-        <h2 class="text-7xl md:text-8xl font-extrabold tracking-tight text-white leading-tight mb-4">
-            THE <span class="text-green-400">MINING</span> INITIATIVE
-        </h2>
-        <p class="text-3xl font-light text-gray-300 mb-8 max-w-4xl mx-auto">
-            A Proof-of-Game Mining Economy with <span class="font-bold">Real Difficulty</span>, Finite Supply & <span class="font-bold">Multi-Decade Survival.</span>
-        </p>
-        <p class="text-lg text-gray-400 mb-12 max-w-3xl mx-auto">
-            This is a true economic simulation inspired by Proof-of-Work. Every reward is earned through reinvestment, active cost management, and long-term planning.
-        </p>
-        <a href="#economy" class="px-10 py-4 text-lg bg-green-500 text-stone-900 font-bold rounded-xl shadow-2xl hover:bg-green-400 transition-all transform hover:scale-105 neon-glow">
-            EXPLORE THE ECOSYSTEM
-        </a>
-        <div class="mt-16 border-t border-gray-700/50 pt-8 text-gray-500 text-sm">
-            <p>No developer mint privileges. No hidden taxes. No emergency rule changes.</p>
-        </div>
-    </section>
-
-    <!-- 2. The Two-Token Economy -->
-    <section id="economy" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h3 class="text-5xl font-bold text-center text-white mb-16">
-            The <span class="text-green-400">Two-Token</span> Economy
-        </h3>
-        <div class="grid md:grid-cols-2 gap-12">
-            <!-- MINE Token Card -->
-            <div class="bg-stone-800/50 p-8 rounded-2xl border-2 border-green-500/30 shadow-xl neon-glow">
-                <div class="flex items-center space-x-4 mb-6">
-                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-3xl font-black text-stone-900 token-spin">M</div>
-                    <h4 class="text-3xl font-extrabold text-green-400">MINE Token</h4>
+    <!-- Navigation -->
+    <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center font-bold text-white">M</div>
+                    <span class="text-xl font-bold tracking-tight text-white">MINING <span class="text-slate-500">INITIATIVE</span></span>
+                    <span class="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded border border-slate-700 ml-2">V3.3 LIVE</span>
                 </div>
-                <p class="text-xl font-semibold text-white mb-4">The Reward & Scarcity Token</p>
-                <ul class="space-y-3 text-gray-300 text-lg">
-                    <li class="flex items-start">
-                        <svg class="w-6 h-6 mr-3 mt-1 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c1.657 0 3 .895 3 2s-1.343 2-3 2m0 0l-2.001 2m2.001-2a2.002 2.002 0 01-4 0c0-1.105 1.343-2 3-2zM19 12a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        <span class="font-bold">Earned:</span> By mining blocks. Halves every 180 days.
-                    </li>
-                    <li class="flex items-start">
-                        <svg class="w-6 h-6 mr-3 mt-1 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-7.618 3.04A12.002 12.002 0 0012 20.056a12.002 12.002 0 007.618-13.016z"></path></svg>
-                        <span class="font-bold">Supply:</span> Hard cap at <span class="font-bold">210,000,000</span>. Followed by a permanent Tail Emission.
-                    </li>
-                    <li class="flex items-start">
-                        <svg class="w-6 h-6 mr-3 mt-1 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                        <span class="font-bold">Sinks:</span> Burned when converting to CREDIT or destroying old miners.
-                    </li>
-                </ul>
-            </div>
-
-            <!-- CREDIT Token Card -->
-            <div class="bg-stone-800/50 p-8 rounded-2xl border-2 border-gray-400/30 shadow-xl">
-                <div class="flex items-center space-x-4 mb-6">
-                    <div class="w-12 h-12 bg-gray-400 rounded-full flex items-center justify-center text-3xl font-black text-stone-900 token-spin" style="animation-direction: reverse;">C</div>
-                    <h4 class="text-3xl font-extrabold text-gray-300">CREDIT Token</h4>
-                </div>
-                <p class="text-xl font-semibold text-white mb-4">The Utility & Energy Token (Near $1 Peg)</p>
-                <ul class="space-y-3 text-gray-300 text-lg">
-                    <li class="flex items-start">
-                        <svg class="w-6 h-6 mr-3 mt-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2v5m0 0l-1.5-1.5M12 11l1.5-1.5M12 11v5m0 0l-1.5 1.5M12 16l1.5 1.5M12 16h-4a2 2 0 00-2 2v3a2 2 0 002 2h8a2 2 0 002-2v-3a2 2 0 00-2-2h-4z"></path></svg>
-                        <span class="font-bold">Core Use:</span> Energy, New Miners, Research, Guild Facilities, Staking.
-                    </li>
-                    <li class="flex items-start">
-                        <svg class="w-6 h-6 mr-3 mt-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 3m0 0l-3 3m3-3h16a2 2 0 002-2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v1"></path></svg>
-                        <span class="font-bold">Peg Mechanism:</span> If CREDIT > $1.05, players can arbitrage by <span class="font-bold">burning $1 worth of MINE</span> to <span class="font-bold">mint 1 CREDIT</span>, ensuring continuous demand for MINE and price stability for CREDIT.
-                    </li>
-                    <li class="flex items-start">
-                        <svg class="w-6 h-6 mr-3 mt-1 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5m0 0v5m0-5h5m-5 0h5m5 0h5m0 0v5m0-5v5m0-5H9m5 0h5m0 0v5m0-5h-5m-5 0h-5m0 0v5m0-5v5"></path></svg>
-                        <span class="font-bold">Role:</span> Keeps the game operational. Not intended for speculation.
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3. The Daily Gameplay Loop -->
-    <section id="gameplay" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h3 class="text-5xl font-bold text-center text-white mb-16">
-            The <span class="text-green-400">Survival</span> Loop
-        </h3>
-        <div class="relative flex flex-col items-center">
-            <div class="absolute inset-0 flex items-center justify-center">
-                <div class="w-full h-1 bg-gray-700"></div>
-            </div>
-            <div class="grid md:grid-cols-5 gap-8 relative z-10 text-center">
-                
-                <!-- Step 1: Energy Management -->
-                <div class="bg-stone-900 rounded-xl p-6 border border-green-500/50 shadow-lg hover:shadow-green-500/20 transition-shadow">
-                    <p class="text-4xl text-green-400 font-extrabold mb-2">1</p>
-                    <h4 class="text-xl font-semibold mb-2">Energy Check</h4>
-                    <p class="text-gray-400">Purchase <span class="font-bold">Energy</span> (using CREDIT) to keep your miners running. Max buffer of <span class="font-bold">48 hours</span>.</p>
-                </div>
-
-                <!-- Arrow Icon -->
-                <div class="hidden md:flex items-center justify-center text-3xl text-green-400">→</div>
-                
-                <!-- Step 2: Mining & Competing -->
-                <div class="bg-stone-900 rounded-xl p-6 border border-green-500/50 shadow-lg hover:shadow-green-500/20 transition-shadow">
-                    <p class="text-4xl text-green-400 font-extrabold mb-2">2</p>
-                    <h4 class="text-xl font-semibold mb-2">Mining Blocks</h4>
-                    <p class="text-gray-400">Your miners consume energy and compete against the global <span class="font-bold">Network Difficulty</span> for MINE.</p>
-                </div>
-
-                <!-- Arrow Icon -->
-                <div class="hidden md:flex items-center justify-center text-3xl text-green-400">→</div>
-
-                <!-- Step 3: Strategic Reinvestment -->
-                <div class="bg-stone-900 rounded-xl p-6 border border-green-500/50 shadow-lg hover:shadow-green-500/20 transition-shadow">
-                    <p class="text-4xl text-green-400 font-extrabold mb-2">3</p>
-                    <h4 class="text-xl font-semibold mb-2">Decision & Reinvest</h4>
-                    <p class="text-gray-400">Use MINE to: Hold, Trade, <span class="font-bold">Fund Research</span>, or Convert to CREDIT for Upgrades.</p>
-                </div>
-
-            </div>
-            <div class="mt-8 text-gray-500 italic text-sm">
-                ⚠️ <span class="font-bold">Activity Clarification:</span> Players only need to manage energy when the buffer runs low. No hourly logins required.
-            </div>
-        </div>
-    </section>
-    
-    <!-- 4. New Section: Energy, Difficulty & Cost Scaling -->
-    <section id="difficulty" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h3 class="text-5xl font-bold text-center text-white mb-16">
-            The Pressure: <span class="text-red-400">Energy</span>, Difficulty & Cost Scaling
-        </h3>
-        <div class="grid lg:grid-cols-2 gap-8">
-            <!-- Card 1: Network Difficulty -->
-            <div class="bg-stone-900 p-8 rounded-2xl border border-red-500/50 shadow-lg">
-                <h4 class="text-2xl font-bold text-white mb-4 flex items-center"><span class="text-red-500 text-3xl mr-3">⛮</span> Network Difficulty (Global Pressure)</h4>
-                <p class="text-gray-400 mb-4">Difficulty is a single global number that rises with total active hashpower. It is the primary pressure valve that prevents early players from permanent dominance.</p>
-                <ul class="space-y-2 text-gray-300">
-                    <li><span class="text-red-400 font-bold">Purpose:</span> Gradually increases Energy consumption across the system.</li>
-                    <li><span class="text-red-400 font-bold">Effect:</span> Reduces the profitability of older hardware, forcing reinvestment.</li>
-                    <li><span class="text-red-400 font-bold">Safety:</span> The Difficulty is <span class="font-bold">hard-capped at 10</span> forever to prevent runaway costs and crashes.</li>
-                </ul>
-            </div>
-            <!-- Card 2: Cost Scaling & Obsolescence -->
-            <div class="bg-stone-900 p-8 rounded-2xl border border-gray-700/50 shadow-lg">
-                <h4 class="text-2xl font-bold text-white mb-4 flex items-center"><span class="text-green-500 text-3xl mr-3">⚡</span> Dynamic Cost Scaling</h4>
-                <p class="text-gray-400 mb-4">Energy costs scale in three dynamic ways, mirroring real-world hardware depreciation:</p>
-                <ul class="space-y-2 text-green-300">
-                    <li><span class="text-white font-bold">By Miner Generation:</span> Newer miners consume more but are power-efficient.</li>
-                    <li><span class="text-white font-bold">By Network Difficulty:</span> Higher difficulty increases energy costs across the entire system.</li>
-                    <li><span class="text-white font-bold">By Miner Age:</span> Older miners become disproportionately less energy-efficient relative to new tech. This naturally phases out obsolete hardware.</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- 5. Miners, Obsolescence, & Recycling -->
-    <section id="miners" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h3 class="text-5xl font-bold text-center text-white mb-16">
-            The Hardware: <span class="text-blue-400">Generations</span> & Recycling
-        </h3>
-        <div class="grid lg:grid-cols-3 gap-8">
-            <!-- Card 1: Miners & Generations -->
-            <div class="bg-stone-900 p-8 rounded-2xl border border-gray-700/50 shadow-lg">
-                <h4 class="text-2xl font-bold text-white mb-4">Generational Tech (NFTs)</h4>
-                <p class="text-gray-400 mb-4">Miners are NFTs progressing through <span class="font-bold">20 generations</span>. Each new generation represents a major leap:</p>
-                <ul class="space-y-2 text-green-300">
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-green-500 font-bold">»</span> Significantly More Powerful ($1.67 \times$ Hashpower).</li>
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-green-500 font-bold">»</span> More Resistant to future Difficulty increases.</li>
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-green-500 font-bold">»</span> Forces a permanent reinvestment loop to stay competitive.</li>
-                </ul>
-            </div>
-            <!-- Card 2: Obsolescence Is Intentional -->
-            <div class="bg-stone-900 p-8 rounded-2xl border border-red-500/50 shadow-lg neon-glow">
-                <h4 class="text-2xl font-bold text-red-400 mb-4">The Burn Reward (MBR)</h4>
-                <p class="text-gray-400 mb-4">To prevent inventory clutter, players can permanently destroy (burn) obsolete miners.</p>
-                <ul class="space-y-2 text-red-300">
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-red-500 font-bold">»</span> Returns a fraction of the original mint price in <span class="font-bold">CREDIT</span>.</li>
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-red-500 font-bold">»</span> Return value decays exponentially based on how many newer generations exist.</li>
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-red-500 font-bold">»</span> Acts as a <span class="font-bold">guaranteed exit value</span> and economy cleanup tool.</li>
-                </ul>
-            </div>
-            <!-- Card 3: Player-Funded Research -->
-            <div class="bg-stone-900 p-8 rounded-2xl border border-yellow-400/50 shadow-lg">
-                <h4 class="text-2xl font-bold text-yellow-400 mb-4">Player-Funded Research</h4>
-                <p class="text-gray-400 mb-4">New generations are unlocked entirely by the community's investment in research using CREDIT.</p>
-                <ul class="space-y-2 text-gray-300">
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-yellow-500 font-bold">»</span> <span class="font-bold">Investment ROI:</span> Funders receive <span class="font-bold">25%</span> of all lifetime sales of that new generation, proportionally.</li>
-                    <li class="flex items-start"><span class="text-2xl mr-2 text-yellow-500 font-bold">»</span> Creates <span class="font-bold">speculative incentives</span> for early backers and absorbs CREDIT during growth.</li>
-                </ul>
-            </div>
-        </div>
-    </section>
-
-    <!-- 6. Solo vs Guild Mining & Facilities -->
-    <section id="guilds" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h3 class="text-5xl font-bold text-center text-white mb-16">
-            Strategic Layer: Solo <span class="text-green-400">vs</span> Guild & Facilities
-        </h3>
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- Solo vs Guild Summary -->
-            <div class="bg-stone-800/50 p-8 rounded-2xl border border-green-500/50 shadow-xl">
-                <h4 class="text-3xl font-bold text-white mb-4">The Choice: Risk vs Stability</h4>
-                <p class="text-gray-300 mb-6">Choose between maximum raw profit or strategic cooperation.</p>
-                <div class="space-y-4">
-                    <div class="p-4 bg-stone-900 rounded-lg border border-green-500/20">
-                        <p class="text-xl font-semibold text-green-400">Solo Mining (<span class="font-bold">100% ROI</span>)</p>
-                        <p class="text-sm text-gray-400">Higher volatility, maximum independence, no access to facilities. <span class="font-bold">High Risk, High Raw Reward.</span></p>
-                    </div>
-                    <div class="p-4 bg-stone-900 rounded-lg border border-blue-500/20">
-                        <p class="text-xl font-semibold text-blue-400">Guild Mining (<span class="font-bold">3% Tax</span>)</p>
-                        <p class="text-sm text-gray-400">Lower volatility, pooled hashrate, access to powerful Facilities. <span class="font-bold">Stability, Strategic Advantage.</span></p>
-                        <p class="text-xs text-red-400 mt-2">Anti-Whale Rule: No single Guild can contribute more than 5% of total network hashpower.</p>
+                <div class="hidden md:block">
+                    <div class="flex space-x-1">
+                        <button onclick="switchTab('dashboard')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-white bg-slate-800 hover:bg-slate-700 transition-colors active-tab" id="btn-dashboard">Mission Control</button>
+                        <button onclick="switchTab('mining')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" id="btn-mining">Mining Ops</button>
+                        <button onclick="switchTab('research')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" id="btn-research">R&D Lab</button>
+                        <button onclick="switchTab('guilds')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" id="btn-guilds">Guild Command</button>
+                        <button onclick="switchTab('sustainability')" class="nav-btn px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" id="btn-sustainability">Ecosystem</button>
                     </div>
                 </div>
             </div>
-            <!-- Guild Facilities Detail -->
-            <div class="bg-stone-800/50 p-8 rounded-2xl border border-blue-400/50 shadow-xl">
-                <h4 class="text-3xl font-bold text-blue-400 mb-4">Strategic Guild Facilities</h4>
-                <p class="text-gray-300 mb-4">Facilities are temporary, exclusive infrastructure bonuses (10-14 days) built using <span class="font-bold">CREDIT</span>. They reduce risk and improve efficiency, but never grant brute-force profitability.</p>
-                <ul class="space-y-3 text-gray-300">
-                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Cooling Station:</span> Reduces daily energy cost for all members.</li>
-                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Predictive Hub:</span> Provides early warning before major Difficulty updates (risk control).</li>
-                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Buffer Extender:</span> Extends maximum energy hours to prevent downtime during inactivity.</li>
-                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Research Accel.:</span> Increases members' effective research funding impact (sourced from Treasury).</li>
-                    <li class="flex items-center"><span class="text-blue-400 font-bold w-20">Emergency Reserve:</span> One-time automatic energy refill protection against sudden outages.</li>
-                </ul>
+        </div>
+        <!-- Mobile Menu placeholder -->
+        <div class="md:hidden border-t border-slate-800 p-2 flex justify-around text-xs text-slate-400">
+            <button onclick="switchTab('dashboard')">Control</button>
+            <button onclick="switchTab('mining')">Mining</button>
+            <button onclick="switchTab('guilds')">Guilds</button>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- 1. MISSION CONTROL (DASHBOARD) -->
+        <div id="dashboard" class="pane active">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-white mb-2">Mission Control</h2>
+                <p class="text-slate-400">High-level economic surveillance. The system operates on a separation of Scarcity and Utility.</p>
+            </div>
+
+            <!-- Token Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <!-- MINE CARD -->
+                <div class="glass-panel p-6 border-t-4 border-amber-500 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-amber-500 text-9xl font-black select-none">M</div>
+                    <div class="flex justify-between items-start relative z-10">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">MINE</h3>
+                            <p class="text-amber-500 font-medium">Reward & Governance</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-slate-400">Max Supply</div>
+                            <div class="text-xl font-mono">210,000,000</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 space-y-3 relative z-10">
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-amber-500">⛏️</span>
+                            <span>Mined via <strong>Proof-of-Game</strong> (1 min blocks)</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-red-500">🔥</span>
+                            <span>Burned via <strong>Guild Tax (1%)</strong> & Arbitrage</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-blue-500">⚓</span>
+                            <span><strong>Value Anchor:</strong> Required to mint CREDIT</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CREDIT CARD -->
+                <div class="glass-panel p-6 border-t-4 border-sky-500 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-sky-500 text-9xl font-black select-none">C</div>
+                    <div class="flex justify-between items-start relative z-10">
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">CREDIT</h3>
+                            <p class="text-sky-500 font-medium">Operational Fuel</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-slate-400">Target Peg</div>
+                            <div class="text-xl font-mono">~ $1.00 USD</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 space-y-3 relative z-10">
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-sky-500">⛽</span>
+                            <span>Used for <strong>Energy, Miners, Research</strong></span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-emerald-500">📈</span>
+                            <span><strong>Arbitrage Ceiling:</strong> $1.05 (Burn MINE to Mint)</span>
+                        </div>
+                        <div class="flex items-center gap-3 text-sm text-slate-300">
+                            <span class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-rose-500">🛡️</span>
+                            <span><strong>Floor Defense:</strong> NFT Salvage Value (MBR)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Arbitrage Engine Visualizer -->
+            <div class="glass-panel p-6">
+                <h3 class="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-2">⚙️ The Arbitrage Engine</h3>
+                <p class="text-sm text-slate-400 mb-6">How the system self-regulates price and creates MINE demand.</p>
+                
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4 text-center">
+                    <div class="flex-1 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                        <div class="text-red-400 font-bold mb-1">TRIGGER</div>
+                        <div class="text-xs text-slate-400">CREDIT price rises above</div>
+                        <div class="text-2xl font-mono text-white">$1.05</div>
+                    </div>
+                    <div class="text-2xl text-slate-600">→</div>
+                    <div class="flex-1 bg-slate-800 p-4 rounded-lg border-2 border-amber-500/50">
+                        <div class="text-amber-500 font-bold mb-1">ACTION</div>
+                        <div class="text-xs text-slate-400">Player Burns $1.00 of</div>
+                        <div class="text-2xl font-bold text-white">MINE</div>
+                    </div>
+                    <div class="text-2xl text-slate-600">→</div>
+                    <div class="flex-1 bg-slate-800 p-4 rounded-lg border-2 border-sky-500/50">
+                        <div class="text-sky-500 font-bold mb-1">RESULT</div>
+                        <div class="text-xs text-slate-400">System Mints</div>
+                        <div class="text-2xl font-bold text-white">1 CREDIT</div>
+                    </div>
+                    <div class="text-2xl text-slate-600">→</div>
+                    <div class="flex-1 bg-slate-800 p-4 rounded-lg border border-slate-700">
+                        <div class="text-emerald-400 font-bold mb-1">PROFIT</div>
+                        <div class="text-xs text-slate-400">Instant value capture</div>
+                        <div class="text-2xl font-mono text-white">~$0.05+</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
 
-    <!-- 7. Long-Term Sustainability -->
-    <section id="sustainability" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h3 class="text-5xl font-bold text-center text-white mb-16">
-            <span class="text-green-400">Long-Term</span> Sustainability
-        </h3>
-        <div class="bg-stone-900/50 p-10 rounded-2xl border-2 border-green-500/50 shadow-2xl neon-glow">
-            <div class="grid md:grid-cols-2 gap-10">
-                <div>
-                    <h4 class="text-3xl font-bold text-white mb-4">The Treasury: Decades of Operation</h4>
-                    <p class="text-gray-300 mb-4">The Treasury is the non-profit economic backbone, funded by gameplay (guild tax, miner sales, fees). It ensures the game runs for decades without emergency inflation.</p>
-                    <ul class="space-y-2 text-gray-400">
-                        <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Funds essential infrastructure.</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Maintains long-term economic stability.</li>
-                        <li class="flex items-center"><svg class="w-5 h-5 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg> Funds the permanent Tail Emission.</li>
+        <!-- 2. MINING OPS (SIMULATOR) -->
+        <div id="mining" class="pane">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-white mb-2">Mining Operations</h2>
+                <p class="text-slate-400">Simulate the <strong>Difficulty-Driven Obsolescence</strong> model. See how energy costs rise as the network grows.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Controls -->
+                <div class="glass-panel p-6 lg:col-span-1">
+                    <h3 class="text-lg font-bold text-white mb-4">Simulation Inputs</h3>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-400 mb-2">Network Hashrate (Growth)</label>
+                        <input type="range" id="hash-slider" min="1000000" max="100000000" step="1000000" value="1000000" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-sky-500">
+                        <div class="flex justify-between mt-2">
+                            <span class="text-xs text-slate-500">1M TH (Launch)</span>
+                            <span class="text-sky-400 font-mono font-bold" id="hash-display">1,000,000 TH</span>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-slate-800 rounded-lg mb-6">
+                        <div class="text-sm text-slate-500 mb-1">Calculated Difficulty (D)</div>
+                        <div class="text-3xl font-mono text-white" id="calc-difficulty">1.00</div>
+                        <div class="text-xs text-slate-600 mt-1">Formula: max(1, TotalHash / 1,000,000)</div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <div class="text-sm text-slate-400 mb-1">Select Miner Generation</div>
+                            <select id="gen-selector" class="w-full bg-slate-900 border border-slate-700 text-white rounded px-3 py-2 focus:outline-none focus:border-sky-500">
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="p-3 border border-slate-700 rounded bg-slate-900/50">
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm text-slate-400">Base Cost:</span>
+                                <span class="text-sm text-white font-mono" id="val-base">0.00</span>
+                            </div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm text-slate-400">Sensitivity:</span>
+                                <span class="text-sm text-amber-400 font-mono" id="val-sens">0.00</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-sky-900/20 border border-sky-500/30 rounded-lg">
+                            <div class="text-sm text-sky-200 mb-1">Daily Energy Cost</div>
+                            <div class="text-2xl font-bold text-white font-mono"><span id="val-final">0.00</span> <span class="text-sm text-sky-400">CREDIT</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="glass-panel p-6 lg:col-span-2 flex flex-col">
+                    <h3 class="text-lg font-bold text-white mb-4">Obsolescence Curve Visualization</h3>
+                    <div class="chart-wrapper flex-grow">
+                        <canvas id="energyChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-4 text-center">Shows Daily Energy Cost (CREDIT) as Difficulty increases. Note the steeper curve for older generations.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. R&D LAB -->
+        <div id="research" class="pane">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-white mb-2">Research & Development</h2>
+                <p class="text-slate-400">Fund the next generation of technology. High risk, massive potential ROI for early movers.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Explanation -->
+                <div class="space-y-6">
+                    <div class="glass-panel p-6">
+                        <h3 class="text-xl font-bold text-white mb-3">The Deal</h3>
+                        <ul class="space-y-4 text-sm text-slate-300">
+                            <li class="flex gap-3">
+                                <span class="bg-slate-800 w-6 h-6 rounded flex items-center justify-center font-bold text-sky-500">1</span>
+                                <span><strong>Crowdfunded:</strong> Players contribute 50% of the total research cost using CREDIT.</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="bg-slate-800 w-6 h-6 rounded flex items-center justify-center font-bold text-sky-500">2</span>
+                                <span><strong>Accelerated:</strong> Hitting the goal instantly unlocks the next Gen (Max speed: 6 months).</span>
+                            </li>
+                            <li class="flex gap-3">
+                                <span class="bg-slate-800 w-6 h-6 rounded flex items-center justify-center font-bold text-amber-500">3</span>
+                                <span><strong>Rewarded:</strong> 25% of the next generation's sales revenue is paid back to contributors.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="glass-panel p-6 border border-emerald-500/30">
+                        <h3 class="text-lg font-bold text-emerald-400 mb-2">ROI Simulator (Gen 2 Example)</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="text-xs text-slate-400">If you contribute:</label>
+                                <input type="number" id="roi-input" value="100" class="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400">And Gen 2 Sales Volume is:</label>
+                                <input type="range" id="roi-sales" min="0" max="5000" value="1000" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500">
+                                <div class="text-right text-xs font-mono text-emerald-400" id="roi-sales-display">1,000 Units</div>
+                            </div>
+                            <div class="pt-4 border-t border-slate-700">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-slate-300">Your Payout:</span>
+                                    <span class="text-2xl font-bold text-white font-mono" id="roi-result">0 CREDIT</span>
+                                </div>
+                                <div class="text-right text-xs text-slate-500" id="roi-percent">ROI: 0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Diagram -->
+                <div class="glass-panel p-6 flex flex-col justify-center">
+                    <h3 class="text-lg font-bold text-white mb-4 text-center">The 25% Revenue Loop</h3>
+                    <div class="flex flex-col gap-2">
+                        <div class="bg-slate-800 p-3 rounded text-center border border-slate-600">
+                            <div class="text-xs text-slate-400">New Player Buys Gen 2</div>
+                            <div class="font-bold text-white">37.50 CREDIT</div>
+                        </div>
+                        <div class="flex justify-center"><span class="text-slate-500">↓</span></div>
+                        <div class="flex gap-2">
+                            <div class="flex-1 bg-emerald-900/30 p-3 rounded text-center border border-emerald-500/30">
+                                <div class="text-xs text-emerald-400 font-bold">25% (9.375 CR)</div>
+                                <div class="text-xs text-slate-300">Payback Pool</div>
+                            </div>
+                            <div class="flex-1 bg-slate-800 p-3 rounded text-center opacity-50">
+                                <div class="text-xs text-slate-400">75% (28.125 CR)</div>
+                                <div class="text-xs text-slate-500">Treasury/Ops</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center"><span class="text-emerald-500">↓</span></div>
+                        <div class="bg-emerald-600 text-white p-3 rounded text-center shadow-lg shadow-emerald-900/50">
+                            <div class="font-bold">YOU (Contributor)</div>
+                            <div class="text-xs opacity-90">Receive Pro-Rata Share</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. GUILD COMMAND -->
+        <div id="guilds" class="pane">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-white mb-2">Guild Command</h2>
+                <p class="text-slate-400">Cooperative strategy. 3% Tax for Stability. Weekly Blind Hash Races.</p>
+            </div>
+
+            <!-- Hash Race Simulator (Integrated) -->
+            <div class="glass-panel p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white">⚡ Blind Hash Race Simulator</h3>
+                        <p class="text-sm text-sky-400">Test strategy: Facilities + Diminishing Returns</p>
+                    </div>
+                    <button onclick="runSimulation()" class="bg-sky-600 hover:bg-sky-500 text-white px-4 py-2 rounded font-bold transition-colors">Run Race Sim</button>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Controls -->
+                    <div class="space-y-4 text-sm">
+                         <div class="flex items-center justify-between p-3 bg-slate-800 rounded">
+                            <span class="text-slate-300">Solo Operator Bonus</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="solo-toggle" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                            </label>
+                        </div>
+                        <div class="p-3 bg-slate-800 rounded">
+                            <div class="font-bold text-white mb-2">Simulated Teams:</div>
+                            <ul class="space-y-2 text-slate-400">
+                                <li>• <strong class="text-sky-400">Team A:</strong> Balanced (Cooling + Buffer)</li>
+                                <li>• <strong class="text-red-400">Team B:</strong> Burst (Overdrive)</li>
+                                <li>• <strong class="text-amber-400">Team C:</strong> Solo Whale (Reserve)</li>
+                                <li>• <strong class="text-purple-400">Team D:</strong> Mega Guild (Diminishing Returns hit)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div class="lg:col-span-2 h-64 relative">
+                        <canvas id="race-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Facilities Grid -->
+            <h3 class="text-xl font-bold text-white mb-4">Facility Tech Tree</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- Cards populated by JS for consistency -->
+                <div id="facility-container" class="contents"></div>
+            </div>
+        </div>
+
+        <!-- 5. SUSTAINABILITY -->
+        <div id="sustainability" class="pane">
+            <div class="mb-6">
+                <h2 class="text-3xl font-bold text-white mb-2">Ecosystem Sustainability</h2>
+                <p class="text-slate-400">Visualizing the sinks and mechanisms that ensure the 10+ year lifespan.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-panel p-6">
+                    <h3 class="text-lg font-bold text-white mb-4">The CREDIT Sinkhole</h3>
+                    <ul class="space-y-3">
+                        <li class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="text-slate-300">Miner Purchases</span>
+                            <span class="text-xs bg-red-900 text-red-200 px-2 py-1 rounded">Massive Burn</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="text-slate-300">Daily Energy (Dynamic)</span>
+                            <span class="text-xs bg-red-900 text-red-200 px-2 py-1 rounded">Recurring Burn</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="text-slate-300">Research Funding</span>
+                            <span class="text-xs bg-red-900 text-red-200 px-2 py-1 rounded">Strategic Burn</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="text-slate-300">Facility Activation</span>
+                            <span class="text-xs bg-red-900 text-red-200 px-2 py-1 rounded">Guild Burn</span>
+                        </li>
+                        <li class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <span class="text-slate-300">Market Fees (2%)</span>
+                            <span class="text-xs bg-red-900 text-red-200 px-2 py-1 rounded">Transaction Burn</span>
+                        </li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="text-3xl font-bold text-white mb-4">The Endgame: Tail Emission & Governance</h4>
-                    <p class="text-gray-300 mb-4">When the <span class="font-bold">210M MINE</span> supply is reached, the game transitions into the permanent Endgame Phase, ensuring mining continues forever.</p>
-                    <div class="p-4 bg-stone-800 rounded-lg">
-                        <p class="text-2xl font-extrabold text-green-400 mb-2">0.2 MINE per Block FOREVER</p>
-                        <p class="text-sm text-gray-400">This small, permanent reward is <span class="font-bold">fully funded by the Treasury</span>, guaranteeing continued competition and NFT relevance. Later-stage <span class="font-bold">DAO Governance</span> can adjust the rate if needed, maintaining multi-decade survival.</p>
-                    </div>
-                    <p class="mt-4 text-sm text-gray-500 italic">The system is built to run as long as people continue to play.</p>
+
+                <div class="glass-panel p-6">
+                     <h3 class="text-lg font-bold text-white mb-4">Anti-Fragility Protocols</h3>
+                     <div class="space-y-4">
+                        <div class="bg-slate-800 p-3 rounded border-l-4 border-emerald-500">
+                            <div class="font-bold text-white">Tail Emission Throttle</div>
+                            <div class="text-xs text-slate-400">If Treasury reserves dip below 5-year safety runway, the 0.2 MINE tail emission automatically reduces.</div>
+                        </div>
+                        <div class="bg-slate-800 p-3 rounded border-l-4 border-sky-500">
+                            <div class="font-bold text-white">MBR Redemption Floor</div>
+                            <div class="text-xs text-slate-400">Bear market safety net. Obsolete miners can always be salvaged for a guaranteed CREDIT value (paid by Treasury).</div>
+                        </div>
+                         <div class="bg-slate-800 p-3 rounded border-l-4 border-purple-500">
+                            <div class="font-bold text-white">Phase 1 Vesting</div>
+                            <div class="text-xs text-slate-400">10% of early block rewards are time-locked to prevent day-1 supply shocks.</div>
+                        </div>
+                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
-    <!-- Footer -->
-    <footer class="bg-stone-900/90 border-t border-gray-700/50 mt-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div class="text-center text-gray-500">
-                <p>&copy; 2024 THE MINING INITIATIVE. Proof-of-Game Mining Simulation.</p>
-                <div class="mt-4 space-x-4 text-sm">
-                    <a href="#" class="hover:text-green-400 transition">Whitepaper (Link Placeholder)</a>
-                    <a href="#" class="hover:text-green-400 transition">Contact</a>
+    </main>
+
+    <script>
+        // --- Global State & Navigation ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.pane').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                el.classList.remove('bg-slate-800', 'text-white');
+                el.classList.add('text-slate-400', 'hover:text-white');
+            });
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.remove('text-slate-400');
+            activeBtn.classList.add('bg-slate-800', 'text-white');
+
+            // Trigger charts if needed
+            if(tabId === 'mining') updateEnergyChart();
+            if(tabId === 'guilds') runSimulation();
+        }
+
+        // --- Mining Ops Logic ---
+        const GEN_DATA = [
+            {g:1, p:25, e:1}, {g:5, p:126, e:7.7}, {g:10, p:966, e:100}, {g:20, p:55420, e:17142}
+        ];
+        
+        // Initialize Select
+        const genSelect = document.getElementById('gen-selector');
+        for(let i=1; i<=20; i++) {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.text = `Generation ${i}`;
+            if(i===10) opt.selected = true;
+            genSelect.appendChild(opt);
+        }
+
+        function calculateEnergy(gen, difficulty) {
+            // Formula V3.3
+            const e_base = 0.01 * Math.pow(1.5, gen - 1);
+            const sensitivity = Math.max(0.25, 1 - 0.8 * ((gen - 1) / 19));
+            const d_eff = Math.min(Math.sqrt(difficulty), 3.16);
+            
+            const final = e_base * (1 + sensitivity * (d_eff - 1));
+            return { e_base, sensitivity, final };
+        }
+
+        // Mining Chart
+        let energyChartCtx = document.getElementById('energyChart').getContext('2d');
+        let energyChart = new Chart(energyChartCtx, {
+            type: 'line',
+            data: {
+                labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // Difficulty
+                datasets: []
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'logarithmic',
+                        grid: { color: '#334155' },
+                        ticks: { color: '#94a3b8' },
+                        title: { display: true, text: 'Daily Cost (CREDIT)', color: '#64748b' }
+                    },
+                    x: {
+                        grid: { color: '#334155' },
+                        ticks: { color: '#94a3b8' },
+                        title: { display: true, text: 'Network Difficulty (D)', color: '#64748b' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#cbd5e1' } }
+                }
+            }
+        });
+
+        function updateEnergyChart() {
+            const diffPoints = Array.from({length: 10}, (_, i) => i + 1);
+            const selectedGen = parseInt(genSelect.value);
+            
+            const datasets = [
+                { label: 'Gen 1 (Obsolete)', gen: 1, color: '#ef4444' },
+                { label: `Gen ${selectedGen} (Selected)`, gen: selectedGen, color: '#0ea5e9' },
+                { label: 'Gen 20 (Future)', gen: 20, color: '#22c55e' }
+            ];
+
+            energyChart.data.datasets = datasets.map(ds => ({
+                label: ds.label,
+                data: diffPoints.map(d => calculateEnergy(ds.gen, d).final),
+                borderColor: ds.color,
+                backgroundColor: ds.color,
+                tension: 0.3
+            }));
+            energyChart.update();
+        }
+
+        // Interactive Calc Update
+        function updateCalc() {
+            const d = parseInt(document.getElementById('hash-slider').value) / 1000000; // Linear D formula
+            const g = parseInt(genSelect.value);
+            
+            document.getElementById('hash-display').innerText = parseInt(document.getElementById('hash-slider').value).toLocaleString() + " TH";
+            // D = max(1, TH / 1M)
+            const realD = Math.max(1, Math.min(10, d));
+            document.getElementById('calc-difficulty').innerText = realD.toFixed(2);
+
+            const res = calculateEnergy(g, realD);
+            document.getElementById('val-base').innerText = res.e_base.toFixed(4);
+            document.getElementById('val-sens').innerText = res.sensitivity.toFixed(2);
+            document.getElementById('val-final').innerText = res.final.toFixed(4);
+        }
+
+        document.getElementById('hash-slider').addEventListener('input', () => { updateCalc(); updateEnergyChart(); });
+        genSelect.addEventListener('change', () => { updateCalc(); updateEnergyChart(); });
+
+
+        // --- R&D Lab Logic ---
+        function updateROI() {
+            const contrib = parseFloat(document.getElementById('roi-input').value) || 0;
+            const sales = parseInt(document.getElementById('roi-sales').value);
+            const genPrice = 37.5; // Gen 2 price
+            const revenueShare = 0.25; // 25%
+
+            document.getElementById('roi-sales-display').innerText = sales.toLocaleString() + " Units";
+
+            // Formula: (Sales * Price * 0.25) * (Contrib / TotalPlayerShare)
+            // Total Player Share for Gen 2 = (37.5 * 100) / 2 = 1875
+            const totalPlayerShare = 1875; 
+            
+            // Pool Size
+            const pool = sales * genPrice * revenueShare;
+            
+            // User Cut
+            const userShare = contrib / totalPlayerShare;
+            const payout = pool * userShare;
+            const roi = ((payout - contrib) / contrib) * 100;
+
+            document.getElementById('roi-result').innerText = payout.toFixed(2) + " CREDIT";
+            const roiEl = document.getElementById('roi-percent');
+            roiEl.innerText = `ROI: ${roi.toFixed(1)}%`;
+            
+            if(roi > 0) { roiEl.className = "text-right text-xs font-bold text-emerald-400"; }
+            else { roiEl.className = "text-right text-xs text-slate-500"; }
+        }
+        document.getElementById('roi-input').addEventListener('input', updateROI);
+        document.getElementById('roi-sales').addEventListener('input', updateROI);
+
+
+        // --- Guild Facilities Rendering ---
+        const facilities = [
+            { name: "Hashrate Overdrive", type: "Offense", effect: "+11% Power", desc: "Burst damage to win close races." },
+            { name: "Cooling Station", type: "Stability", effect: "+7% Power", desc: "Reduces decay, consistent points." },
+            { name: "Buffer Extender", type: "Stability", effect: "+7% Power", desc: "Protects against downtime." },
+            { name: "Research Accelerator", type: "Strategy", effect: "+5% Power", desc: "Early game prep bonus." },
+            { name: "Emergency Reserve", type: "Safety", effect: "Safety Net", desc: "One-time wipe protection." }
+        ];
+        const facContainer = document.getElementById('facility-container');
+        facilities.forEach(f => {
+            let color = f.type === 'Offense' ? 'text-red-400 border-red-500/30 bg-red-900/20' : 
+                        f.type === 'Stability' ? 'text-sky-400 border-sky-500/30 bg-sky-900/20' :
+                        f.type === 'Strategy' ? 'text-purple-400 border-purple-500/30 bg-purple-900/20' :
+                        'text-amber-400 border-amber-500/30 bg-amber-900/20';
+            
+            facContainer.innerHTML += `
+                <div class="p-3 rounded border ${color}">
+                    <div class="font-bold text-sm text-white">${f.name}</div>
+                    <div class="text-xs font-mono mt-1 opacity-90">${f.effect}</div>
+                    <div class="text-xs mt-2 text-slate-400">${f.desc}</div>
                 </div>
-            </div>
-        </div>
-    </footer>
+            `;
+        });
 
+        // --- Hash Race Simulator (Ported & Simplified) ---
+        // (Reusing logic from previous step but rendered into canvas inside the tab)
+        const TEAM_NAMES = ['Team A', 'Team B', 'Team C', 'Team D'];
+        let raceChartSim = null;
+
+        function runSimulation() {
+            const ctx = document.getElementById('race-chart').getContext('2d');
+            const soloActive = document.getElementById('solo-toggle').checked;
+            
+            // Your data logic (unchanged)
+            const dataRaw = [18000, 22000, 15000, 25000];
+            const facilities = [0.14, 0.11, 0.05, 0.09]; 
+            if (soloActive) facilities[2] += 0.06;
+
+            const dataNorm = dataRaw.map(v => v > 10000 ? 10000 + Math.sqrt(v - 10000) * 50 : v);
+            const finalScores = dataNorm.map((v, i) => v * (1 + facilities[i]));
+
+            // ──────────────────────────────
+            // CREATE CHART ONCE, THEN UPDATE
+            // ──────────────────────────────
+            if (!raceChartSim) {
+                // First time → create the chart
+                raceChartSim = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: TEAM_NAMES,
+                        datasets: [{
+                            label: 'Final Race Power',
+                            data: finalScores,                 // initial data
+                            backgroundColor: ['#0ea5e9', '#f43f5e', '#f59e0b', '#8b5cf6'],
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 1200,           // nice slow rise
+                            easing: 'easeOutQuart',    // feels more natural for rising bars
+                            y: {
+                                from: 300
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { display: false, beginAtZero: true },
+                            x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                        }
+                    }
+                });
+            } else {
+                // Subsequent calls → just update data and animate
+                raceChartSim.data.datasets[0].data = finalScores;
+
+                // This triggers the beautiful rising/falling animation
+                // raceChartSim.update('active');  // 'active' gives the smoothest feel
+                raceChartSim.update(1200)
+                // or use raceChartSim.update(1200) if you want custom duration on update
+            }
+        }
+        document.getElementById('solo-toggle').addEventListener('change', runSimulation)
+
+        // --- Init ---
+        updateCalc();
+        updateROI();
+    </script>
 </body>
 </html>
